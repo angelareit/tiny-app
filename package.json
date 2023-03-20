@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/angelareit/tiny-app/issues"
   },
-  "homepage": "https://github.com/angelareit/tiny-app#readme"
+  "homepage": "https://github.com/angelareit/tiny-app#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
