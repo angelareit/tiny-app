@@ -1,17 +1,23 @@
+<%# template for displaying a single url and its shortened form. 
+  The end point for such a page will be in the format /urls/:id. 
+  The : in front of id indicates that id is a route parameter. 
+  This means that the value in this part of the url will be available in the req.params object. %>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <!-- Bootstrap CSS -->
     <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
-      crossorigin="anonymous"
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+    crossorigin="anonymous"
     />
     <title>URL - TinyApp Example</title>
   </head>
-
+  
   <body>
+     <%- include('partials/_header') %>
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
