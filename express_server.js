@@ -58,6 +58,11 @@ app.post("/urls", (req, res) => {
   res.redirect(`urls/${urlId}`);
 });
 
+app.post('/urls/:id/delete', (req, res)=> {
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls")
+});
+
 
 function generateRandomString() {
   let randomStr = Math.random().toString(36).slice(2, 8);
