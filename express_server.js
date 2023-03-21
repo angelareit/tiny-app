@@ -10,6 +10,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//must add this middleware for the request.body to contain form value
 app.use(express.urlencoded({ extended: true }));
 
 
@@ -54,7 +55,7 @@ app.post("/urls", (req, res) => {
   let urlId = generateRandomString();
   urlDatabase[urlId] = req.body.longURL;
   //res.send("Ok"); // Respond with 'Ok' (we will replace this)
-  res.redirect(`urls/:${urlId}`);
+  res.redirect(`urls/${urlId}`);
 });
 
 
