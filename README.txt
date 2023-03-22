@@ -18,3 +18,5 @@ We learned that when the browser receives a redirection response, it does anothe
 We created a new route for handling our redirect links; this route obtained the id from the route parameters, looked up the corresponding longURL from our urlDatabase, and responded with a redirect to the longURL. 
 Finally, we tested that our new route is working as expected by making requests to it with the command line tool curl and our browser.
 
+we will implemented a DELETE operation to remove existing shortened URLs from our database. Forms only support GET and POST so we couldnt use DELETE.
+In the future, we would use the method override package or Ajax to get around this limitation, but for this project POST is fine.
