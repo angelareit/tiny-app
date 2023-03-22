@@ -13,13 +13,17 @@
     </div>
     <% if (userID !== null) { %>
       <h4>
-         <% %> 
+        <% if (name === undefined || name == '') { %> 
+          Hello, User!
+          <% } else { %>
+            Hello, <%= name %>!
+        <% } %>
         <form method="POST" class="form-inline" action="/logout">
         <button type="submit" class="btn btn-primary">logout</button>
         </form>
       </h4>
       <% } else { %>
-        <form method="POST" class="form-inline" action="/login">
+        <form method="GET" class="form-inline" action="/login">
           <button type="submit" class="btn btn-primary">log in</button>
         </form> 
         <form method="GET" class="form-inline" action="/register">

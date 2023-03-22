@@ -50,7 +50,6 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const id = req.cookies["userID"];
-  console.log(id);
   const templateVars = {
     urls: urlDatabase,
     userID: id === undefined ? null : req.cookies[id],
@@ -60,17 +59,21 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  const id = req.cookies["userID"];
   const templateVars = {
-    userID: req.cookies["userID"],
+    userID: id,
+    name: users[id].name
   }
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
+  const id = req.cookies["userID"];
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
-    userID: req.cookies["userID"],
+    userID: id,
+    name: users[id].name
   };
   res.render("urls_show", templateVars);
 });
@@ -82,10 +85,8 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
   let urlId = generateRandomString();
   urlDatabase[urlId] = req.body.longURL;
-  //res.send("Ok"); // Respond with 'Ok' (we will replace this)
   res.redirect(`urls/${urlId}`);
 });
 
@@ -101,13 +102,33 @@ app.post('/urls/:id', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  //let inputUsername = req.body.username;
-  //res.cookie('username', inputUsername);
+  const { email, password } = req.body;
+ // console.log('LOGIN POST:', email, password, users);
+  const currUser = findUserBy(req, 'email');
+ // console.log('CURR USER:', currUser);
+  if (currUser === undefined) {
+    res.status(403).send('Sorry, Account Not Found')
+    return;
+  }
+  if (password !== currUser.password) {
+    res.status(403).send('Sorry Invalid Password')
+    return;
+  }
+  res.cookie('userID', currUser.id);
   res.redirect("/urls")
+});
+app.get('/login', (req, res) => {
+  const templateVars = {
+    userID: null,
+    name : null,
+    email: req.body.email,
+    password: req.body.password
+  };
+  res.render("login", templateVars);
 });
 app.post('/logout', (req, res) => {
   res.clearCookie('userID');
-  res.redirect("/urls")
+  res.redirect("/login")
 });
 
 app.get('/register', (req, res) => {
@@ -118,8 +139,17 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
+  if (req.body.email === '' || req.body.password === '') {
+    res.status(403).send('Sorry Invalid Credentials')
+    return;
+  }
+  if (findUserBy(req, 'email') !== undefined) {
+    res.status(403).send('Sorry an account already exist')
+    return;
+  }
   const templateVars = {
     id: generateRandomString(),
+    name: req.body.name,
     email: req.body.email,
     password: req.body.password
   };
@@ -134,4 +164,13 @@ function generateRandomString() {
   return randomStr;
 }
 
+//find users by an object value.  Input (request, objectKey)
+function findUserBy(req, val) {
+  for (let x in users) {
+    if (users[x][val] === req.body[val]) {
+      return users[x];
+    }
+  }
+  return undefined;
+}
 
