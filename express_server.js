@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const bcrypt = require("bcryptjs");
 var cookieParser = require('cookie-parser')
 const PORT = 8080; // default port 8080
 
@@ -9,31 +10,19 @@ app.set("view engine", "ejs")
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
-    userID: "dw345w",
+    userID: "aK2dw2",
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "dw345w",
+    userID: "aK2dw2",
   },
 };
 const users = {
   aK2dw2: {
     id: "aK2dw2",
-    name: 'ang',
+    name: 'Bob',
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  rsv3qw: {
-    id: "rsv3qw",
-    name: 'toot',
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-  dw345w: {
-    id: "dw345w",
-    name: 'toot',
-    email: "user@one.com",
-    password: "asd",
+    password: "$2a$10$F.FXqbHuzox270dCNnC0buhzq2GCyfeOOi9Tsp3YAuEBmiXaRc//S",
   },
 };
 
@@ -157,14 +146,13 @@ app.post('/urls/:id', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-  // console.log('LOGIN POST:', email, password, users);
   const currUser = findUserBy(req, 'email');
-  // console.log('CURR USER:', currUser);
   if (currUser === undefined) {
     res.status(403).send('Sorry, Account Not Found')
     return;
   }
-  if (password !== currUser.password) {
+  if (bcrypt.hashSync(password) === currUser.password)
+    {
     res.status(403).send('Sorry Invalid Password')
     return;
   }
@@ -177,12 +165,14 @@ app.get('/login', (req, res) => {
     console.log('Redirecting....');
     res.redirect('/urls');
   }
+
   const templateVars = {
     userID: null,
     name: null,
     email: req.body.email,
     password: req.body.password
   };
+  console.log(templateVars.password)
   res.render("login", templateVars);
 });
 app.post('/logout', (req, res) => {
@@ -210,11 +200,12 @@ app.post('/register', (req, res) => {
     res.status(403).send('Sorry an account with the same email already exist')
     return;
   }
+  const hashedPass = bcrypt.hashSync(req.body.password, 10);
   const templateVars = {
     id: generateRandomString(),
     name: req.body.name,
     email: req.body.email,
-    password: req.body.password
+    password: hashedPass
   };
   users[templateVars.id] = templateVars;
   res.cookie('userID', templateVars.id);
@@ -222,6 +213,19 @@ app.post('/register', (req, res) => {
   res.redirect(`/urls`);
 });
 
+function authenticateUser(req)
+{
+  if (req.body.email === '' || req.body.password === '') {
+    res.status(403).send('Sorry Invalid Credentials')
+    return;
+  }
+  if (findUserBy(req, 'email') !== undefined) {
+    res.status(403).send('Sorry an account with the same email already exist')
+    return;
+  }
+}
+
+//generates 6 character random string, used for generating UserId and shortURL
 function generateRandomString() {
   let randomStr = Math.random().toString(36).slice(2, 8);
   return randomStr;
@@ -237,6 +241,7 @@ function findUserBy(req, val) {
   return undefined;
 }
 
+//returns all the saved urls made by the user. Input (userID)
 function urlsForUser(userID) {
   const myUrls = {};
   for (let x in urlDatabase) {
