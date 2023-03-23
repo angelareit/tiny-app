@@ -7,10 +7,15 @@ const PORT = 8080; // default port 8080
 app.set("view engine", "ejs")
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "dw345w",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "dw345w",
+  },
 };
-
 const users = {
   aK2dw2: {
     id: "aK2dw2",
@@ -18,11 +23,17 @@ const users = {
     email: "user@example.com",
     password: "purple-monkey-dinosaur",
   },
-  d3v32w: {
-    id: "d3v32w",
+  rsv3qw: {
+    id: "rsv3qw",
     name: 'toot',
     email: "user2@example.com",
     password: "dishwasher-funk",
+  },
+  dw345w: {
+    id: "dw345w",
+    name: 'toot',
+    email: "user@one.com",
+    password: "asd",
   },
 };
 
@@ -51,7 +62,7 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
   const id = req.cookies["userID"];
   const templateVars = {
-    urls: urlDatabase,
+    urls: urlsForUser(id),
     userID: id === undefined ? null : req.cookies[id],
     name: id === undefined ? null : users[id].name
   };
@@ -60,6 +71,10 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const id = req.cookies["userID"];
+  if (req.cookies["userID"] === undefined) {
+    console.log('Redirecting....');
+    res.redirect('/login');
+  }
   const templateVars = {
     userID: id,
     name: users[id].name
@@ -68,44 +83,83 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
+  if (urlDatabase[req.params.id].userID !== req.cookies["userID"]) {
+    res.status(403).send('Sorry, cannot access other user\'s short URL.')
+    return;
+  }
+  if (req.cookies["userID"] === undefined) {
+    res.status(403).send('Sorry, You must be view shorten URLs')
+    return;
+  }
   const id = req.cookies["userID"];
+  console.log('/urls/:id ', req.params.id);
   const templateVars = {
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id].longURL,
     userID: id,
     name: users[id].name
   };
+  console.log('get urls/:id ', templateVars);
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  if (!urlDatabase.hasOwnProperty(req.params.id)) {
+    res.status(403).send('Sorry, shortened id does not exist')
+  }
+  if (req.cookies["userID"] === undefined || urlDatabase[req.params.id].userID !== req.cookies["userID"]) {
+    res.status(403).send('Sorry, cannot access other user\'s short URL.')
+    return;
+  }
+  const longURL = urlDatabase[req.params.id].longURL;
   console.log(longURL);
   res.redirect(longURL);
 });
 
 app.post("/urls", (req, res) => {
+  if (req.cookies["userID"] === undefined) {
+    res.status(403).send('Sorry, You must be logged in to shorten URLs')
+    return;
+  }
   let urlId = generateRandomString();
-  urlDatabase[urlId] = req.body.longURL;
+  console.log('post /urls: ', req.body.longURL);
+  urlDatabase[urlId] = {
+    longURL: req.body.longURL,
+    userID: req.cookies["userID"]
+  };
+
+  console.log('post /urls: ', urlDatabase[urlId])
   res.redirect(`urls/${urlId}`);
 });
 
 app.post('/urls/:id/delete', (req, res) => {
+  if (urlDatabase[req.params.id].userID !== req.cookies["userID"]) {
+    res.status(403).send('Sorry, cannot delete other user\'s short URL.')
+    return;
+  }
   delete urlDatabase[req.params.id];
   res.redirect("/urls")
 });
 
 app.post('/urls/:id', (req, res) => {
+  if (urlDatabase[req.params.id].userID !== req.cookies["userID"]) {
+    res.status(403).send('Sorry, cannot access other user\'s short URL.')
+    return;
+  }
   let urlId = req.params.id;
-  urlDatabase[urlId] = req.body.newLongURL;
+  urlDatabase[urlId] = {
+    longURL: req.body.newLongURL,
+    userID: req.cookies["userID"]
+  };
+  console.log(urlDatabase);
   res.redirect(`/urls/${urlId}`);
 });
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
- // console.log('LOGIN POST:', email, password, users);
+  // console.log('LOGIN POST:', email, password, users);
   const currUser = findUserBy(req, 'email');
- // console.log('CURR USER:', currUser);
+  // console.log('CURR USER:', currUser);
   if (currUser === undefined) {
     res.status(403).send('Sorry, Account Not Found')
     return;
@@ -118,9 +172,14 @@ app.post('/login', (req, res) => {
   res.redirect("/urls")
 });
 app.get('/login', (req, res) => {
+  //  console.log('LOGIN:', req.cookies["userID"]);
+  if (req.cookies["userID"] !== undefined) {
+    console.log('Redirecting....');
+    res.redirect('/urls');
+  }
   const templateVars = {
     userID: null,
-    name : null,
+    name: null,
     email: req.body.email,
     password: req.body.password
   };
@@ -132,6 +191,10 @@ app.post('/logout', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
+  if (req.cookies["userID"] !== undefined) {
+    console.log('Redirecting....');
+    res.redirect('/urls');
+  }
   const templateVars = {
     userID: null
   };
@@ -144,7 +207,7 @@ app.post('/register', (req, res) => {
     return;
   }
   if (findUserBy(req, 'email') !== undefined) {
-    res.status(403).send('Sorry an account already exist')
+    res.status(403).send('Sorry an account with the same email already exist')
     return;
   }
   const templateVars = {
@@ -173,4 +236,17 @@ function findUserBy(req, val) {
   }
   return undefined;
 }
+
+function urlsForUser(userID) {
+  const myUrls = {};
+  for (let x in urlDatabase) {
+    if (urlDatabase[x].userID === userID) {
+      myUrls[x] = urlDatabase[x];
+    }
+  }
+  return myUrls;
+}
+
+
+
 
