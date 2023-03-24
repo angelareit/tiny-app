@@ -22,8 +22,11 @@
       <div class="card-header"></div>
       <div class="card-body">
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
-        <p class="card-text">
+        <p3 class="card-text">
           Short URL ID: <a href="/u/<%= id %>"> <%= id %></a>
+        </p>
+        <p3 class="card-text">
+          date created: <%= dateCreated %>
         </p>
         <form method="POST" class="form-inline" action="/urls/<%= id %>"">
           <div class="form-group mb-2">

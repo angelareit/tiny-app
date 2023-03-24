@@ -1,10 +1,10 @@
-We learned how to create a web server that has different responses depending on which route you visit. 
+learned how to create a web server that has different responses depending on which route you visit. 
 Finally, we learned how to test our web server using both our browser and the command line utility curl.
 
-We used the Express render method to respond to requests by sending back a template, along with an object containing the data the template needs.
-We then used EJS to render this data to our web page. 
-We used Express route parameters to pass data from our frontend to our backend via the request url. 
-Finally, we created a partial template for our header so that we can have the code for it in one location, 
+used the Express render method to respond to requests by sending back a template, along with an object containing the data the template needs.
+used EJS to render this data to our web page. 
+used Express route parameters to pass data from our frontend to our backend via the request url. 
+Finally, created a partial template for our header so that we can have the code for it in one location, 
 but render it on multiple pages
 
 We first created a form that allowed a user to input a longURL and send that data to our API via a POST request. 
