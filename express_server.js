@@ -114,7 +114,7 @@ app.get("/u/:id", (req, res) => {
 
 app.post("/urls", (req, res) => {
   const userID= req.session.userID;
-  const date = new Date().toLocaleString().replace(",","").replace(/:.. /," ");
+  const date = new Date().toLocaleString().replace(",","").replace(/:.. /," ") + ' UTC';
 
   if (!userID) {
     res.status(403).send('Sorry, You must be logged in to shorten URLs')
@@ -142,7 +142,7 @@ app.post('/urls/:id/delete', (req, res) => {
 
 app.post('/urls/:id', (req, res) => {
   let urlId = req.params.id;
-  const date = new Date().toLocaleString().replace(",","").replace(/:.. /," ");
+  const date = new Date().toLocaleString().replace(",","").replace(/:.. /," ") + ' UTC';
 
   if (urlDatabase[urlId].userID !== req.session.userID) {
     res.status(403).send('Sorry, cannot access other user\'s short URL.')
