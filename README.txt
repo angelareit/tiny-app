@@ -4,11 +4,11 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["sign up page"](https://github.com/angelareit/tiny-app/blob/master/docs/sign-up.png)
+!["sign up page"](https://github.com/angelareit/tiny-app/blob/master/docs/sign-up.png?raw=true)
 
-!["url list page"](https://github.com/angelareit/tiny-app/blob/master/docs/url-list-page.png)
+!["url list page"](https://github.com/angelareit/tiny-app/blob/master/docs/sign-up.png?raw=true)
 
-!["shortened url page"](https://github.com/angelareit/tiny-app/blob/master/docs/shorted-url-page.png)
+!["shortened url page"](https://github.com/angelareit/tiny-app/blob/master/docs/shorted-url-page.png?raw=true)
 
 
 ## Dependencies
